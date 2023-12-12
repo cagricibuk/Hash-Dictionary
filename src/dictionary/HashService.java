@@ -5,22 +5,18 @@ package dictionary;
  * @author cagri
  */
 public class HashService {
-       private int currentSize, maxSize;
+
+    private int currentSize, maxSize;
     private String[] keys;
     private String[] vals;
 
-    public LinearProbingHashTable(int capacity) {
+    public HashService(int capacity) {
         currentSize = 0;
         maxSize = capacity;
         keys = new String[maxSize];
         vals = new String[maxSize];
     }
 
-    public void makeEmpty() {
-        currentSize = 0;
-        keys = new String[maxSize];
-        vals = new String[maxSize];
-    }
 
     public int getSize() {
         return currentSize;
@@ -42,55 +38,30 @@ public class HashService {
         return key.hashCode() % maxSize;
     }
 
+    public void resize(int newCapacity) {
+        
+    }
+
     public void insert(String key, String val) {
-        int tmp = hash(key);
-        int i = tmp;
-        do {
-            if (keys[i] == null) {
-                keys[i] = key;
-                vals[i] = val;
-                currentSize++;
-                return;
-            }
-            if (keys[i].equals(key)) {
-                vals[i] = val;
-                return;
-            }
-            i = (i + 1) % maxSize;
-        } while (i != tmp);
+        // Resize the hash table if the load factor exceeds 0.75
+
     }
 
     public String get(String key) {
-        int i = hash(key);
-        while (keys[i] != null) {
-            if (keys[i].equals(key))
-                return vals[i];
-            i = (i + 1) % maxSize;
-        }
-        return null;
+        
     }
 
     public void remove(String key) {
-        if (!contains(key))
-            return;
-        int i = hash(key);
-        while (!key.equals(keys[i]))
-            i = (i + 1) % maxSize;
-        keys[i] = vals[i] = null;
-        for (i = (i + 1) % maxSize; keys[i] != null; i = (i + 1) % maxSize) {
-            String tmp1 = keys[i], tmp2 = vals[i];
-            keys[i] = vals[i] = null;
-            currentSize--;
-            insert(tmp1, tmp2);
-        }
-        currentSize--;
+        
     }
 
     public void printHashTable() {
         System.out.println("\nHash Table: ");
-        for (int i = 0; i < maxSize; i++)
-            if (keys[i] != null)
+        for (int i = 0; i < maxSize; i++) {
+            if (keys[i] != null) {
                 System.out.println(keys[i] + " " + vals[i]);
+            }
+        }
         System.out.println();
     }
 }

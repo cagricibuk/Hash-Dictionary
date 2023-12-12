@@ -12,7 +12,7 @@ public class FileService {
     
     
     public void ReadFile(String fileName) throws FileNotFoundException, IOException {
-       
+       //ProgressBar pb = new ProgressBar(10,1);
         String dir = System.getProperty("user.dir");
         System.out.println("\ncurrent dir "+ dir);
         dictFile = new File(dir+"\\src\\dictionary\\" + fileName);
@@ -29,9 +29,14 @@ public class FileService {
         String st;
         // Condition holds true till
         // there is character in a string
+        
+         HashService hs = new HashService(10);
         while ((st = br.readLine()) != null) // Print the string
         {
-            System.out.println(st);
+          hs.insert(st, st);
+          
+            
         }
+        
     }
 }
