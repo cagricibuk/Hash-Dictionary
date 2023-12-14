@@ -12,11 +12,11 @@ public class FileService {
     
     
     public void ReadFile(String fileName) throws FileNotFoundException, IOException {
-       //ProgressBar pb = new ProgressBar(10,1);
+       
         String dir = System.getProperty("user.dir");
-        System.out.println("\ncurrent dir "+ dir);
+        //System.out.println("\ncurrent dir "+ dir);
         dictFile = new File(dir+"\\src\\dictionary\\" + fileName);
-        System.out.println("\nTargetFile "+dictFile);
+        //System.out.println("\nTargetFile "+dictFile);
         File file = dictFile  ;
 
         // Note:  Double backquote is to avoid compiler
@@ -29,14 +29,32 @@ public class FileService {
         String st;
         // Condition holds true till
         // there is character in a string
+        int count = 1;
+        while ((st = br.readLine()) != null) // Print the string
+        {
+          count++;
+          
+            
+        }
+        br.close();
+        br = new BufferedReader(new FileReader(file));
+        System.out.println("\nFound "+count+" entries!");
         
-         HashService hs = new HashService(10);
+        HashService hs = new HashService(count);
+        System.out.println(hs.getSize());
         while ((st = br.readLine()) != null) // Print the string
         {
           hs.insert(st, st);
           
+           
+          
+          
             
         }
+        
+        System.out.println("InsertComplete");
+        //System.out.println(hs.getSize());
+        //hs.get("aback");
         
     }
 }

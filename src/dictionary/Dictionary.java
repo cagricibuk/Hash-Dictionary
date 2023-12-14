@@ -31,8 +31,9 @@ public class Dictionary {
                     Scanner sc= new Scanner(System.in); 
                     String str= sc.nextLine();
                     System.out.print("You have entered: "+str);
-                    Thread.sleep(2000);
+                    Thread.sleep(1000);
                     fs.ReadFile(str);
+                    
                     break;
                 case 2:
                     System.out.println("Tuesday");
