@@ -4,94 +4,134 @@ package dictionary;
  *
  * @author cagri
  */
-public class HashService {
+public class HashService<Key> {
 
-    private int currentSize, maxSize;
-    private String[] keys;
-    private String[] vals;
+    int[] collision = new int[3000];
+    Key[] table;
+    int M;
+    int N; // number of full elements
+    boolean[] full;
 
-    public HashService(int capacity) {
-        currentSize = 0;
-        maxSize = capacity;
-        keys = new String[maxSize];
-        vals = new String[maxSize];
+    public HashService(int M) {
+        table = (Key[]) new Object[M];
+        full = new boolean[M];
+        this.N = 0;
+        this.M = M;
     }
 
-   public void makeEmpty() {
-        currentSize = 0;
-        keys = new String[maxSize];
-        vals = new String[maxSize];
+    public int hash(Key t) {
+        return ((t.hashCode() & 0x7fffffff) % M);
+
     }
 
-    public int getSize() {
-        return currentSize;
+    public boolean insert(Key key) {
+        if (key == null) {
+            throw new IllegalArgumentException("first argument to put() is null");
+        }
+        if (N >= M / 2) {
+            resize(2 * M);
+        }
+        if (contains(key)) {
+            collision[hash(key)]++;
+        }
+        int i;
+        int h = hash(key);
+        System.out.println("hash(" + key + ")= " + h);
+        for (i = h; table[i] != null; i = (i + 1) % M) {
+            if (table[i].equals(key)) {
+                return false;
+            }
+            /*if(i+1 == h){
+                break;
+            }*/
+        }
+        table[i] = key;
+        N++; // increase number of stored items
+        return true;
     }
 
-    public boolean isFull() {
-        return currentSize == maxSize;
+    // resizes the hash table to the given capacity by re-hashing all of the keys
+    private void resize(int capacity) {
+        System.out.println("resize");
+        HashService<Key> temp = new HashService<Key>(capacity);
+        for (int i = 0; i < M; i++) {
+            if (table[i] != null) {
+                temp.insert(table[i]);
+            }
+        }
+        table = temp.table;
+        full = temp.full;
+        M = temp.M;
     }
 
-    public boolean isEmpty() {
-        return getSize() == 0;
+    public void delete(Key key) {
+        if (key == null) {
+            throw new IllegalArgumentException("argument to delete() is null");
+        }
+        if (!contains(key)) {
+            return;
+        }
+
+        // find position i of key
+        int i = hash(key);
+        while (!key.equals(table[i])) {
+            i = (i + 1) % M;
+        }
+
+        // delete key and associated value
+        table[i] = null;
+
+        // rehash all keys in same cluster
+        i = (i + 1) % M;
+        while (table[i] != null) { //maybe there was a collision so we need to rehash
+            // delete keys[i] an vals[i] and reinsert
+            Key keyToRehash = table[i];
+            table[i] = null;
+            N--;
+            insert(keyToRehash);
+            i = (i + 1) % M;
+        }
+        N--;
+        // halves size of array if it's 12.5% full or less
+        if (N > 0 && N <= M / 8) {
+            resize(M / 2);
+        }
     }
 
-    public boolean contains(String key) {
+    public boolean contains(Key key) {
+        if (key == null) {
+            throw new IllegalArgumentException("argument to contains() is null");
+        }
         return get(key) != null;
     }
 
-    private int hash(String key) {
-        return key.hashCode() % maxSize;
-    }
-
-    public void insert(String key, String val) {
-        int tmp = hash(key);
-        int i = tmp;
-        do {
-            if (keys[i] == null) {
-                keys[i] = key;
-                vals[i] = val;
-                currentSize++;
-                return;
+    public Key get(Key key) {
+        if (key == null) {
+            throw new IllegalArgumentException("argument to get() is null");
+        }
+        for (int i = hash(key); table[i] != null; i = (i + 1) % M) {
+            if (table[i].equals(key)) {
+                return table[i];
             }
-            if (keys[i].equals(key)) {
-                vals[i] = val;
-                return;
-            }
-            i = (i + 1) & (maxSize - 1);
-        } while (i != tmp);
-    }
-
-    public String get(String key) {
-        int i = hash(key);
-        while (keys[i] != null) {
-            if (keys[i].equals(key))
-                return vals[i];
-            i = (i + 1) % maxSize;
         }
         return null;
     }
 
-    public void remove(String key) {
-        if (!contains(key))
-            return;
-        int i = hash(key);
-        while (!key.equals(keys[i]))
-            i = (i + 1) % maxSize;
-        keys[i] = vals[i] = null;
-        for (i = (i + 1) % maxSize; keys[i] != null; i = (i + 1) % maxSize) {
-            String tmp1 = keys[i], tmp2 = vals[i];
-            keys[i] = vals[i] = null;
-            currentSize--;
-            insert(tmp1, tmp2);
+    public int distinctCount() {
+        int distinctCount = 0;
+        for (int k = 0; k < table.length; k++) {
+            if (table[k] != null) {
+                distinctCount++;
+            }
         }
-        currentSize--;
+        return distinctCount;
     }
 
-    public void printHashTable() {
-        System.out.println("\nHash Table: ");
-        for (int i = 0; i < maxSize; i++)
-            if (keys[i] != null)
-                System.out.println(keys[i] + " " + vals[i]);
-        System.out.println();
+    public String toString() {
+        String s = "[";
+        for (int i = 0; i < M; i++) {
+            s += table[i] + ",";
+        }
+        return s + "]";
     }
 }

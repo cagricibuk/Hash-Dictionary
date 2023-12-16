@@ -1,5 +1,7 @@
 package dictionary;
 
+import java.awt.AWTException;
+import java.awt.Robot;
 import java.io.*;
 
 /**
@@ -9,20 +11,23 @@ import java.io.*;
 public class FileService {
 
     File dictFile;
-    
-    
-    public void ReadFile(String fileName) throws FileNotFoundException, IOException {
-       
+
+    public HashService ReadFile(String fileName) throws FileNotFoundException, IOException, InterruptedException {
+
         String dir = System.getProperty("user.dir");
         //System.out.println("\ncurrent dir "+ dir);
-        dictFile = new File(dir+"\\src\\dictionary\\" + fileName);
+        dictFile = new File(dir + "\\src\\dictionary\\" + fileName);
         //System.out.println("\nTargetFile "+dictFile);
-        File file = dictFile  ;
+        File file = dictFile;
 
-        // Note:  Double backquote is to avoid compiler
-        // interpret words
-        // like \test as \t (ie. as a escape sequence)
-        // Creating an object of BufferedReader class
+        if (file.exists() && !file.isDirectory()) {
+
+            System.out.println("\nFile Found!");
+        } else {
+            System.out.println("\nFile not found!");
+            return null;
+        }
+
         BufferedReader br = new BufferedReader(new FileReader(file));
 
         // Declaring a string variable
@@ -32,29 +37,27 @@ public class FileService {
         int count = 1;
         while ((st = br.readLine()) != null) // Print the string
         {
-          count++;
-          
-            
+            count++;
+
         }
         br.close();
         br = new BufferedReader(new FileReader(file));
-        System.out.println("\nFound "+count+" entries!");
-        
-        HashService hs = new HashService(count);
-        System.out.println(hs.getSize());
+        System.out.println("\nFound " + count + " entries!");
+
+        HashService hs = new HashService(count + 1);
         while ((st = br.readLine()) != null) // Print the string
         {
-          hs.insert(st, st);
-          
-           
-          
-          
-            
+
+            //System.out.println("key " + st);
+            hs.insert(st);
+
         }
+        Thread.sleep(1000);
+        Dictionary.clearme();
+        Thread.sleep(500);
         
-        System.out.println("InsertComplete");
-        //System.out.println(hs.getSize());
-        //hs.get("aback");
-        
+       
+        return hs;
+
     }
 }
